@@ -4,10 +4,10 @@ import re
 from tweepy import OAuthHandler
 
 #Using OAuth interface to authorize our app to access Twitter
-consumer_key = "YOUR_CONSUMER_KEY"
-consumer_secret = "YOUR_CONSUMER_SECRET"
-access_token = "YOUR_ACCESS_TOKEN"
-access_secret = "YOUR_ACCESS_SECRET"
+consumer_key = "qKgqkgL14FOygq41iejwwkdvi"
+consumer_secret = "PgbqHNTMQvBB6pVvsDRFJqxJqv3jcR49JygMUpUaRQB8cUJ0la"
+access_token = "166564853-F9sSz9LI3TddGslool07Hsjah0Kw6rTT4fdxuJn7"
+access_secret = "oMC6oHIbiMLk0G9Lg499F1Q2qe7dSs1PniYjRyMTs6lI0"
 
 auth = OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_secret)
