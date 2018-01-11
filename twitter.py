@@ -2,8 +2,11 @@ import tweepy
 import json
 import re
 import operator
+import string
 from tweepy import OAuthHandler
 from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from nltk import bigrams
 from collections import Counter
 
 #Using OAuth interface to authorize our app to access Twitter
@@ -102,13 +105,35 @@ with open('/home/the_doctor/python.json', 'r') as f:
 #Term freq
 
 fname = '/home/the_doctor/python.json'
+
+#Removing the stop words as observed in the results above
+punctuation = list(string.punctuation)
+stop = stopwords.words('english') + punctuation + ['RT', 'via', '@netflix', '…']
+
 with open(fname, 'r') as f:
     count_all = Counter()
     for line in f:
         tweet = json.loads(line)
         # Create a list with all the terms
-        terms_all = [term for term in preprocess(tweet['text'])]
+        #terms_all = [term for term in preprocess(tweet['text'])] Changed after adding the stop list
+        terms_stop = [term for term in preprocess(tweet['text']) if term not in stop]
         # Update the counter
-        count_all.update(terms_all)
+        count_all.update(terms_stop)
     # Print the first 5 most frequent words
-    print(count_all.most_common(5))
+    #print(count_all.most_common(5))
+
+#Few more ways to customize the filters
+
+# Count terms only once, equivalent to Document Frequency
+terms_single = set(terms_stop)
+# Count hashtags only
+terms_hash = [term for term in preprocess(tweet['text'])
+              if term.startswith('#')]
+# Count terms only (no hashtags, no mentions)
+terms_only = [term for term in preprocess(tweet['text'])
+              if term not in stop and
+              not term.startswith(('#', '@'))]
+# mind the ((double brackets))
+# startswith() takes a tuple (not a list) if
+# we pass a list of inputs
+terms_bigram = bigrams(terms_stop)
