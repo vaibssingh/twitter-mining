@@ -1,8 +1,10 @@
 import tweepy
 import json
 import re
+import operator
 from tweepy import OAuthHandler
 from nltk.tokenize import word_tokenize
+from collections import Counter
 
 #Using OAuth interface to authorize our app to access Twitter
 consumer_key = "qKgqkgL14FOygq41iejwwkdvi"
@@ -17,38 +19,38 @@ auth.set_access_token(access_token, access_secret)
 api = tweepy.API(auth)
 
 #For example, read our own timeline
-for status in tweepy.Cursor(api.home_timeline).items(10):
-    # Process a single status
-    print(status.text)
+# for status in tweepy.Cursor(api.home_timeline).items(10):
+#     # Process a single status
+#     print(status.text)
 
-#To contiously gather tweets about a topic or #hashtag we use streaming API StreamListener()
-from tweepy import Stream
-from tweepy.streaming import StreamListener
-
-
-class MyListener(StreamListener):
-
-    def on_data(self, data):
-        try:
-            with open('sense.json', 'a') as f:
-                f.write(data)
-                return True
-        except BaseException as e:
-            print("Error on_data: %s" % str(e))
-        return True
-
-    def on_error(self, status):
-        print(status)
-        return True
+# #To contiously gather tweets about a topic or #hashtag we use streaming API StreamListener()
+# from tweepy import Stream
+# from tweepy.streaming import StreamListener
 
 
-twitter_stream = Stream(auth, MyListener())
-twitter_stream.filter(track=['#Sense8'])
+# class MyListener(StreamListener):
+
+#     def on_data(self, data):
+#         try:
+#             with open('sense.json', 'a') as f:
+#                 f.write(data)
+#                 return True
+#         except BaseException as e:
+#             print("Error on_data: %s" % str(e))
+#         return True
+
+#     def on_error(self, status):
+#         print(status)
+#         return True
+
+
+# twitter_stream = Stream(auth, MyListener())
+# twitter_stream.filter(track=['#Sense8'])
 
 #Text pre-processing part
 #Let us have a look at our collected data
 
-with open('sense.json', 'r') as f:
+with open('/home/the_doctor/python.json', 'r') as f:
     line = f.readline()  # read only the first tweet/line
     tweet = json.loads(line)  # load it as Python dict
     print(json.dumps(tweet, indent=4))  # pretty-print
@@ -91,9 +93,22 @@ def preprocess(s, lowercase=False):
 
 #To process all our tweets, previously saved on file
 
-
-with open('sense.json', 'r') as f:
+with open('/home/the_doctor/python.json', 'r') as f:
     for line in f:
         tweet = json.loads(line)
         tokens = preprocess(tweet['text'])
-        do_something_else(tokens)
+        print(tokens)
+
+#Term freq
+
+fname = '/home/the_doctor/python.json'
+with open(fname, 'r') as f:
+    count_all = Counter()
+    for line in f:
+        tweet = json.loads(line)
+        # Create a list with all the terms
+        terms_all = [term for term in preprocess(tweet['text'])]
+        # Update the counter
+        count_all.update(terms_all)
+    # Print the first 5 most frequent words
+    print(count_all.most_common(5))
