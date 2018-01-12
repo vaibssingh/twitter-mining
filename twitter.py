@@ -26,7 +26,7 @@ api = tweepy.API(auth)
 #     # Process a single status
 #     print(status.text)
 
-# #To contiously gather tweets about a topic or #hashtag we use streaming API StreamListener()
+# #To continuously gather tweets about a topic or #hashtag we use streaming API StreamListener()
 # from tweepy import Stream
 # from tweepy.streaming import StreamListener
 
@@ -53,10 +53,10 @@ api = tweepy.API(auth)
 #Text pre-processing part
 #Let us have a look at our collected data
 
-with open('/home/the_doctor/python.json', 'r') as f:
-    line = f.readline()  # read only the first tweet/line
-    tweet = json.loads(line)  # load it as Python dict
-    print(json.dumps(tweet, indent=4))  # pretty-print
+# with open('/home/the_doctor/python.json', 'r') as f:
+#     line = f.readline()  # read only the first tweet/line
+#     tweet = json.loads(line)  # load it as Python dict
+#     print(json.dumps(tweet, indent=4))  # pretty-print
 
 #Writing regex rules to consider various aspects of a tweet
 
@@ -74,7 +74,6 @@ regex_str = [
     r"(?:\#+[\w_]+[\w\'_\-]*[\w_]+)",  # hash-tags
     # URLs
     r'http[s]?://(?:[a-z]|[0-9]|[$-_@.&amp;+]|[!*\(\),]|(?:%[0-9a-f][0-9a-f]))+',
-
     r'(?:(?:\d+,?)+(?:\.?\d+)?)',  # numbers
     r"(?:[a-z][a-z'\-_]+[a-z])",  # words with - and '
     r'(?:[\w_]+)',  # other words
@@ -96,44 +95,46 @@ def preprocess(s, lowercase=False):
 
 #To process all our tweets, previously saved on file
 
-with open('/home/the_doctor/python.json', 'r') as f:
-    for line in f:
-        tweet = json.loads(line)
-        tokens = preprocess(tweet['text'])
-        print(tokens)
+# with open('/home/the_doctor/Documents/twitter_mining/tests/mytweets.json', 'r') as f:
+#     for line in f:
+#         tweet = json.loads(line)
+#         tokens = preprocess(tweet['text'])
+#         print(tokens)
 
 #Term freq
 
-fname = '/home/the_doctor/python.json'
+fname = '/home/the_doctor/Documents/twitter_mining/tests/mytweets.json'
 
 #Removing the stop words as observed in the results above
 punctuation = list(string.punctuation)
-stop = stopwords.words('english') + punctuation + ['RT', 'via', '@netflix', '…']
+stop = stopwords.words('english') + punctuation + ['RT', 'via', '…', 'I', 'u']
 
 with open(fname, 'r') as f:
     count_all = Counter()
     for line in f:
         tweet = json.loads(line)
         # Create a list with all the terms
-        #terms_all = [term for term in preprocess(tweet['text'])] Changed after adding the stop list
-        terms_stop = [term for term in preprocess(tweet['text']) if term not in stop]
+        #terms_all = [term for term in preprocess(tweet['text'])]
+        terms_all = [term for term in preprocess(tweet['text']) if term not in stop]
         # Update the counter
-        count_all.update(terms_stop)
+        #count_all.update(terms_all)
+        terms_bigram = bigrams(terms_all)
+        print(*map(' '.join, terms_bigram), sep = ', ')
     # Print the first 5 most frequent words
     #print(count_all.most_common(5))
 
-#Few more ways to customize the filters
+# #Few more ways to customize the filters
 
-# Count terms only once, equivalent to Document Frequency
-terms_single = set(terms_stop)
-# Count hashtags only
-terms_hash = [term for term in preprocess(tweet['text'])
-              if term.startswith('#')]
-# Count terms only (no hashtags, no mentions)
-terms_only = [term for term in preprocess(tweet['text'])
-              if term not in stop and
-              not term.startswith(('#', '@'))]
-# mind the ((double brackets))
-# startswith() takes a tuple (not a list) if
-# we pass a list of inputs
-terms_bigram = bigrams(terms_stop)
+# # Count terms only once, equivalent to Document Frequency
+# terms_single = set(terms_all)
+# # Count hashtags only
+# terms_hash = [term for term in preprocess(tweet['text'])
+#               if term.startswith('#')]
+# # Count terms only (no hashtags, no mentions)
+# terms_only = [term for term in preprocess(tweet['text'])
+#               if term not in stop and
+#               not term.startswith(('#', '@'))]
+# # mind the ((double brackets))
+# # startswith() takes a tuple (not a list) if
+# # we pass a list of inputs
+# terms_bigram = bigrams(terms_all)
